@@ -58,6 +58,7 @@ function computePath(jsonData) {
  */
 function processLogs(entries) {
    const jsonData = {};
+   jsonData.rawLogs = _.filter(entries, x => !x.logName.endsWith('get_trip'));
    jsonData.updateVehicleLogs =_(entries).
       // TODO: errors (like deadline exceeded) won't have a response field.  should still show them somehow
       // TODO: export full logs into js

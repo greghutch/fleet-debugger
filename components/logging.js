@@ -25,7 +25,7 @@ const _ = require('lodash');
  */
 async function fetchLogs(label, lableValue) {
    // TDOO better handling of date range for search
-   const filterString = `resource.type=fleetengine.googleapis.com/Fleet labels.${label}=${lableValue} timestamp>2021-10-7`;
+   const filterString = `resource.type=fleetengine.googleapis.com/Fleet labels.${label}=${lableValue} timestamp>2021-10-14`;
    let entries = [];
    try {
       const request = {
