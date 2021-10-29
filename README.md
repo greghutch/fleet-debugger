@@ -3,6 +3,8 @@
 A debugging tool for use with the stateful Last Mile Fleet Solutions and On Demaind Rides and
 Deliveries solutions.
 
+Currently setup to demo use of JSJS sdk and a angular hello world app
+
 ## Disclaimer
 
 This is not an officially supported Google product
@@ -27,20 +29,24 @@ gcloud auth application-default login
 npm install
 ```
 
+### Download & build forked @angular/google-maps
+
+```
+git clone git@github.com:greghutch/components.git
+cd components
+yarn build
+```
+
+
+Depending on locations you might have to update the package.json in this
+repro to find the built angular components from above
+
 
 ## Examples
 
 View current data from my-vehicle-id via journey sharing SDK
 
 ```
-herbie.js live --apikey <your api key> --vehicle=my-vehicle-id
+dune-buggy.js live --apikey <your api key> --trip=my-trip-id
 ```
 
-View historical data from my-vehicle-id
-```
-herbie.js historical --apikey <your api key> --vehicle=my-vehicle-id
-```
-
-## UI
-
-![Screenshot](docs/screenshots/fleetdebugger.png)
