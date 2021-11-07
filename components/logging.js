@@ -29,6 +29,7 @@ const interestingLogs = [
   "create_vehicle",
   "update_vehicle",
   "get_vehicle",
+  "search_vehicles",
   "create_trip",
   "update_trip",
   // LMFS
@@ -38,21 +39,11 @@ const interestingLogs = [
   "update_delivery_vehicle",
 ];
 
-/**
- * Uses cloud logging APIs to list log entries from the
- * fleet engine resource matching the specified label.
- */
-async function fetchLogs(label, labelValues, daysAgo = 2, extra = "") {
-  const endPoint = "fleetengine.googleapis.com";
-  const resourceName = "projects/" + auth.getProjectId();
+async function fetchLogsRaw(queryStr, daysAgo=2) {
   // TODO better handling of date range for search: allow start/end
   let startDate = new Date(Date.now() - daysAgo * 24 * 3600 * 1000);
-  const logFilterString = _.map(
-    interestingLogs,
-    (logName) => `${resourceName}/logs/${endPoint}%2F${logName}`
-  ).join(" OR ");
-  const labelFilterString = labelValues.join(" OR ");
-  const filterString = `resource.type=fleetengine.googleapis.com/Fleet labels.${label}=(${labelFilterString}) timestamp>="${startDate.toISOString()}" ${extra} log_name=(${logFilterString})`;
+  const resourceName = "projects/" + auth.getProjectId();
+  const filterString = queryStr + ` timestamp>="${startDate.toISOString()}"`;
   console.log("log filter", filterString);
   let entries = [];
   try {
@@ -80,6 +71,26 @@ async function fetchLogs(label, labelValues, daysAgo = 2, extra = "") {
   return _.filter(entries, (le) => !le.logName.endsWith("get_trip"));
 }
 
+function fullLogName(logName) {
+  const endPoint = "fleetengine.googleapis.com";
+  const resourceName = "projects/" + auth.getProjectId();
+  return `${resourceName}/logs/${endPoint}%2F${logName}`;
+}
+
+/**
+ * Uses cloud logging APIs to list log entries from the
+ * fleet engine resource matching the specified label.
+ */
+async function fetchLogs(label, labelValues, daysAgo, extra = "") {
+  const logFilterString = _.map(
+    interestingLogs,
+    fullLogName,
+  ).join(" OR ");
+  const labelFilterString = labelValues.join(" OR ");
+  const filterString = `resource.type=fleetengine.googleapis.com/Fleet labels.${label}=(${labelFilterString}) log_name=(${logFilterString}) ${extra}`;
+  return fetchLogsRaw(filterString, daysAgo);
+}
+
 /**
  * Generates & writes a valid javascript to specified file.  Existing file at location
  * will be overwritten.
@@ -95,3 +106,5 @@ export {parsedData as default};`;
 
 exports.fetchLogs = fetchLogs;
 exports.writeLogs = writeLogs;
+exports.fetchLogsRaw = fetchLogsRaw;
+exports.fullLogName = fullLogName;

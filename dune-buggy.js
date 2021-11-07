@@ -72,11 +72,14 @@ async function main() {
     argv.daysAgo
   );
   const trip_ids = _(rawVehicleLogs)
-    .map((x) => _.get(x, "labels.trip_id"))
-    .uniq()
+    .map((x) => _.get(x, "labels.trip_id"))  //overlapping trips show up as CSV in lables
     .compact()
+    .map(x => x.split(','))
+    .flatten()
+    .uniq()
     .value();
   let tripLogs = [];
+  let SVLogs = [];
   if (trip_ids.length > 0) {
     console.log("gots trip_ids", trip_ids);
     tripLogs = await logging.fetchLogs(
@@ -85,11 +88,17 @@ async function main() {
       argv.daysAgo,
       "jsonPayload.@type=type.googleapis.com/maps.fleetengine.v1.CreateTripLog"
     );
+     const SVLogQueryString = 'jsonPayload.request.tripId=(' + trip_ids.join(" OR ") +
+         ") logName=" + logging.fullLogName('search_vehicles');
+     SVLogs = await logging.fetchLogsRaw(SVLogQueryString,
+         argv.daysAgo);
+     console.log('gos SVLogs.length', SVLogs.length);
   } else {
     console.log(`no trips associated with vehicle ${argv.vehicle}`);
   }
   const rawLogs = _(rawVehicleLogs)
     .concat(tripLogs)
+    .concat(SVLogs)
     .sortBy((x) => new Date(x.timestamp).getTime())
     .reverse()
     .value();
