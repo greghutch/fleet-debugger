@@ -43,6 +43,12 @@ const yargs = require("yargs/yargs")(process.argv.slice(2))
         "Cloud logging is very slow when scanning for old logs, limit search to at most this many days ago",
       default: 2,
     },
+    startTime: {
+      describe: "Start log search",
+    },
+    endTime: {
+      describe: "End log search",
+    },
     apikey: {
       describe: "apikey",
       required: true,

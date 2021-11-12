@@ -52,7 +52,11 @@ async function fetchLogs(label, labelValues, daysAgo = 2, extra = "") {
     (logName) => `${resourceName}/logs/${endPoint}%2F${logName}`
   ).join(" OR ");
   const labelFilterString = labelValues.join(" OR ");
-  const filterString = `resource.type=fleetengine.googleapis.com/Fleet labels.${label}=(${labelFilterString}) timestamp>="${startDate.toISOString()}" ${extra} log_name=(${logFilterString})`;
+  const startTime = new Date("Sun Nov 07 2021 08:55:33").toISOString();
+  const endTime = new Date("Sun Nov 07 2021 11:22:06").toISOString();
+  let timeFilter = `timestamp>="${startDate.toISOString()}`;
+  timeFilter = `timestamp>="${startTime}" timestamp<="${endTime}"`;
+  const filterString = `resource.type=fleetengine.googleapis.com/Fleet labels.${label}=(${labelFilterString}) ${timeFilter} ${extra} log_name=(${logFilterString})`;
   console.log("log filter", filterString);
   let entries = [];
   try {
